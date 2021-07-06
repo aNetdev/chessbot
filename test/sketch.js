@@ -7,8 +7,8 @@ let armLen = 0
 let arm1Len = armLen;
 let arm2Len = armLen; //equal lengh
 
-let gotoX = -200;
-let gotoY = 200;
+let gotoX = 100;
+let gotoY = -200;
 
 let prevX = 0;
 let prevY = 0;
@@ -59,19 +59,18 @@ function draw() {
   drawArrow(v0, arm1V, "blue");
   circle(arm1XY.X, arm1XY.Y, 20);
 
-  let arm2V = arm1V.copy();
-  //calculate the angle of second arm from x axis. we dont need to do this for real arm since we can referane the arm 1 and angle arm2 from there
-  let b2 = asin((gotoY - arm1XY.Y) / arm2Len);
-  if (gotoX < 0) {
-    b2 = PI - b2;
 
-  }
-  // if (gotoY < 0) {
-  //   b2 = -(arm2Len * PI) - b2
-  // }
-  arm2V.setHeading(b2);
+  let tempV = createVector(gotoX, gotoY);
+  //drawArrow(v0, tempV, "green");
+  
+  let arm2V = p5.Vector.sub(tempV,arm1V );
+  drawArrow(arm1V, arm2V, "red");
 
-  drawArrow(arm1V, arm2V, "green");
+
+  let x = arm2V.angleBetween(arm1V);
+  console.log(`arm2 len ${arm2V.mag()} angleBetween ${180- degrees(x)}`);
+  angles.A2_Calc =PI- x;
+  angles.A2_Len = arm2V.mag();
 
 
 
@@ -101,8 +100,10 @@ function displayText(angles) {
 
   textSize(12);
   stroke('black');
-  text(`A1 - ${degrees(angles.A1)}`, width - 150, hight - 50);
-  text(`A2 - ${degrees(angles.A2)}`, width - 150, hight - 30);
+  text(`A1 - ${degrees(angles.A1)}`, width - 150, hight - 60);
+  text(`A2 - ${degrees(angles.A2)}`, width - 150, hight - 40);
+  text(`A2(calc) - ${ degrees(angles.A2_Calc)}`, width - 150, hight - 20);
+  text(`A2len(calc) - ${angles.A2_Len}`, width - 150, hight - 0);  
 
 }
 function setxy() {
@@ -153,47 +154,25 @@ function getAngles(x, y) {
   //https://appliedgo.net/roboticarm/
   //https://howtomechatronics.com/projects/scara-robot-how-to-build-your-own-arduino-based-robot/
 
-  /*   
-       _a2_______(x,y)
-      / theta2
-   a1/          h
-    /     
-     theta1
-  
-     theta1= d1+ d2 (d1 angle beteen x and hypotanuse d2 angle between hypo and a1)
-     d1=atan(y/x)
-     d2=   acos((sq(a)+sq(b)-sq(c))/2ab)
-  
-  */
   if (x == 0 && y == 0) {//this does not form a triangle so hard code. this would be the home position
     return { A1: 0, A2: 360 };
   }
+
   let h = sqrt(sq(x) + sq(y));
   let d1 = atan(y / x);
 
   let d2 = lawOfcosines(h, arm1Len, arm2Len);// acos((sq(h) + sq(arm1Len) - sq(arm2Len)) / (2 * h * arm1Len)); 
-  
+
   let a2 = lawOfcosines(arm1Len, arm2Len, h)//acos((sq(arm1Len) + sq(arm2Len) - sq(h)) / (2 * h * arm2Len));
   let a1 = d1 + d2;
-
-  if (x < 0) {    
-    a1 = HALF_PI - a1;
+  if (y < 0) {
+    a2 = a2;
   }
-  // if (x >= 0 & y >= 0) {       // 1st quadrant
-  //   a1 = 90 - a1;
-  // }
-  // if (x < 0 & y > 0) {       // 2nd quadrant
-  //   a1 = 90 - a1;
-  // }
-  // if (x < 0 & y < 0) {       // 3d quadrant
-  //   a1 = 270 - a1;
-  // }
-  // if (x > 0 & y < 0) {       // 4th quadrant
-  //   a1 = -90 - a1;
-  // }
-  // if (x < 0 & y == 0) {
-  //   a1 = 270 + a1;
-  // }
+
+  if (x < 0) {
+    a1 = PI + a1;
+  }
+  
 
   return { A1: a1, A2: a2 };
 }
