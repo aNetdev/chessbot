@@ -5,7 +5,7 @@ class Scara {
         this.arm2Len = arm2Len;
         this.width = width;
         this.height = height;
-        this.orginV = createVector(0, 0);
+        this.orginV = createVector(0,0);
     }
 
     goto(x, y) {
@@ -66,10 +66,14 @@ class Scara {
 
         textSize(12);
         stroke('black');
-        text(`A1 - ${degrees(angles.A1)}`, width - 175, hight - 50);
-        text(`A2 - ${degrees(angles.A2)}`, width - 175, hight - 35);
-        text(`A2(calc) - ${degrees(angles.A2_Calc)}`, width - 175, hight - 20);
-        text(`A2len(calc) - ${angles.A2_Len}`, width - 175, hight - 5);
+        let x = width - 50
+        let y = 100
+        text(`A1 - ${degrees(angles.A1)}`, x, y);
+        text(`A2 - ${degrees(angles.A2)}`, x, y += 20);
+        text(`A2(calc) - ${degrees(angles.A2_Calc)}`, x, y += 20);
+        text(`A2len(calc) - ${angles.A2_Len}`, x, y += 20);
+        text(`x(calc) - ${this.gotoX}`, x, y += 20);
+        text(`y(calc) - ${this.gotoY}`, x, y += 20);
 
     }
 

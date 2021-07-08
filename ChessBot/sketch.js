@@ -1,10 +1,10 @@
 let width = 600;
-let hight = 600;
+let height = 600;
 let cols = 8;
 let distance = width / (cols + 2); // one empty row on each side
 
 let halfWidth = width / 2;
-let halfHight = hight / 2;
+let halfheight = height / 2;
 
 
 let gotoX = 80;
@@ -17,14 +17,15 @@ let cells = [];
 let bot;
 
 function setup() {
-  createCanvas(width, hight);
+  createCanvas(width + 200, height + 100);
+  //createCanvas(width , height);
   background(220);
-  let armLen = sqrt(sq(halfWidth) + sq(halfHight)) / 2;
+  let armLen = sqrt(sq(halfWidth) + sq(halfheight)) / 2;
   let arm1Len = armLen;
   let arm2Len = armLen;
 
   inp = createInput(`${gotoX},${gotoY}`);
-  inp.position(width + 50, 0)
+  inp.position(width,10)
   inp.size(50);
   inp.input(setxy);
 
@@ -40,8 +41,8 @@ function draw() {
   bot.goto(gotoX, gotoY);
   bot.update();
   bot.show();
-  mark(halfWidth, halfHight);//center
-  mark(gotoX,gotoY);
+  mark(halfWidth, halfheight);//center
+  mark(gotoX, gotoY);
 
 
   inp.value(`${gotoX},${gotoY}`);
@@ -125,7 +126,7 @@ function createChessBoard(cols, distance) {
 //     line(distance, index, w - distance, index);
 //   }
 //   for (let index = distance; index < h; index += d) {
-//     line(index, distance, index, hight - distance);
+//     line(index, distance, index, height - distance);
 //   }
 // }
 // function drawXYAxis(w, h) {
