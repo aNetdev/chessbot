@@ -12,10 +12,9 @@ class Cell {
     }
     show() {
         push();
-        noStroke();
         fill(this.color);
         rect(this.x, this.y, this.len, this.len);
-        
+
         if (this.occupied) {
             fill('red');
             let midp = this.midpoint();
