@@ -40,7 +40,7 @@ class Scara {
         let arm1Tip = this.getCordinates(this.arm1Len, this.angles.A1);
         circle(arm1Tip.X, arm1Tip.Y, 20);//joint circle
 
-        this.drawArrow(this.arm1V, this.arm2V, "red");
+        this.drawArrow(this.arm1V, this.arm2V, "green");
 
         pop();
 
