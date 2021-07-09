@@ -54,13 +54,22 @@ function draw() {
   if (cell) {
     cell.occupied = true;
     nextCell = cell;
+    nextCell.color = "green";
   }
   if (previousX != gotoX || previousY != gotoY) {
     var pcell = getCellFromXY(previousX, previousY);
     if (pcell) {
       pcell.occupied = false;
       previousCell = pcell;
-      getPath(previousCell, nextCell);
+      const cells = getPath(previousCell, nextCell);
+      previousCell.color = "blue";
+      const c = color(random(0, 255), random(0, 255), random(0, 255));
+      for (let index = 0; index < cells.length; index++) {
+        const cell = cells[index];
+        cell.textColor = c;
+        cell.inPath = true;
+        cell.order = index;
+      }
     }
   }
 
@@ -152,7 +161,7 @@ function createChessBoard(cols, distance) {
 
 function getCellFromXY(x, y) {
   for (const cell of cells) {
-    if ((cell.x <= x && (cell.x + cell.len) >= x) && (cell.y <= y && (cell.y + cell.len) >= y)) {
+    if ((cell.x <= x && (cell.x + (cell.len - 1)) >= x) && (cell.y <= y && (cell.y + (cell.len - 1)) >= y)) {
       return cell;
     }
   }
@@ -183,63 +192,47 @@ function getHorizontalCells(y, startX, endX, len) {
 
 
 function getPath(start, end) {
-  //check if this is on a straight path?
   let cellsInPath = [];
-  if (start.x == end.x) { //move vertically
-    const x = start.x;
-    if (start.y > end.y) { // move up
-
-      cellsInPath.push(end);
-      let cells = getVerticalCells(x, start.y, end.y, end.len);
-      cellsInPath = cellsInPath.concat(cells);
-      //add the souce as well
-      cellsInPath.push(start);
-    }
-    else { //movedown
-      cellsInPath.push(end);
-      let cells = getVerticalCells(x, end.y, start.y, end.len);
-      cellsInPath = cellsInPath.concat(cells.reverse());
-      //add the souce as well
-      cellsInPath.push(start);
-    }
-
+  //check if this is on a straight path?
+  if (start.x != end.x && start.y != end.y) { // not in a straight path
+    //we can move in a L patern. for this divide the cells into a vertical and horizontal arm
+    const vEnd = getCellFromXY(start.x, end.y);
+    let vCellsInPath = getCellsInPath(start, vEnd);
+    vCellsInPath.pop();//remove the last cell since it would be added in hCellsInPath
+    let hCellsInPath = getCellsInPath(vEnd, end);
+    cellsInPath = vCellsInPath.concat(hCellsInPath);
   }
-  else if (start.y == end.y)// move horizontaly
-  {
-    const y = start.y;
-    if (start.x < end.x) { // move right
-
-      cellsInPath.push(end);
-      let cells = getHorizontalCells(y, end.x, start.x, end.len);
-      cellsInPath = cellsInPath.concat(cells);
-      //add the souce as well
-      cellsInPath.push(start);
-    }
-    else { //move left
-      cellsInPath.push(end);
-      let cells = getHorizontalCells(y, start.x, end.x, end.len);
-      cellsInPath = cellsInPath.concat(cells.reverse());
-      //add the souce as well
-      cellsInPath.push(start);
-    }
+  else {
+    cellsInPath = getCellsInPath(start, end);
   }
+  return cellsInPath;
+}
+
+function getCellsInPath(start, end) {
+  let cellsInPath = [];
+  cellsInPath.push(start);
+  const x = start.x; // to make sure we dont move left or right
+  if (start.y > end.y) { // move up    
+    let cells = getVerticalCells(x + 1, start.y, end.y, end.len);
+    cellsInPath = cellsInPath.concat(cells.reverse());
+  }
+  else if (start.y < end.y) { //movedown
+    let cells = getVerticalCells(x + 1, end.y, start.y, end.len);
+    cellsInPath = cellsInPath.concat(cells);
+  }
+
+  const y = start.y; //to make sure we dont move up or down
+  if (start.x < end.x) { // move right
+
+    let cells = getHorizontalCells(y + 1, end.x, start.x, end.len);
+    cellsInPath = cellsInPath.concat(cells);
+  }
+  else if (start.x > end.x) { //move left    
+    let cells = getHorizontalCells(y + 1, start.x, end.x, end.len);
+    cellsInPath = cellsInPath.concat(cells.reverse());
+  }
+  cellsInPath.push(end);
   console.log(cellsInPath);
   return cellsInPath;
 }
-// function createGraph(w, h, d = 1) {
-//   stroke('green');
-//   strokeWeight(1);
-//   //y axis
-//   for (let index = distance; index < w; index += d) {
-//     line(distance, index, w - distance, index);
-//   }
-//   for (let index = distance; index < h; index += d) {
-//     line(index, distance, index, height - distance);
-//   }
-// }
-// function drawXYAxis(w, h) {
-//   stroke('red');
-//   strokeWeight(2);
-//   line(0, -h, 0, h);
-//   line(-w, 0, w, 0);
-// }
+

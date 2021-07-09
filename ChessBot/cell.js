@@ -20,6 +20,11 @@ class Cell {
             let midp = this.midpoint();
             circle(midp.x, midp.y, 30);
         }
+        if (this.inPath) {
+            fill(this.textColor);
+            let midp = this.midpoint();
+            text(this.order, midp.x, midp.y);
+        }
         pop();
     }
 
