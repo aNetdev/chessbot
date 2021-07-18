@@ -62,9 +62,9 @@ class Cell {
 
 
         if (this === destinationCell) {//move to mid point
-            let startPoint = cordinates.length>0?cordinates[cordinates.length-1]:startXY;
+            let startPoint = cordinates.length > 0 ? cordinates[cordinates.length - 1] : startXY;
             let incords = this.getStraightPathPoints(startPoint, this.midX, this.midY);
-            cordinates= cordinates.concat(incords);
+            cordinates = cordinates.concat(incords);
         }
 
         return cordinates;
@@ -136,8 +136,8 @@ class Cell {
             let br = this.pointsToBottomRightCorner(startXY);
 
             //move to the right middle
-            let rm = this.pointsToRightMid(br[br.length - 1]);
-            cordinates = br.concat(rm);
+            // let rm = this.pointsToRightMid(br[br.length - 1]);
+            cordinates = br;//.concat(rm);
         }
 
         // if the start is at the left of the cell
@@ -147,8 +147,8 @@ class Cell {
             //move to the bottom right corner                
             let br = this.pointsToBottomRightCorner(bl[bl.length - 1]);
             //move to the right middle              
-            let rm = this.pointsToRightMid(br[br.length - 1]);
-            cordinates = bl.concat(br).concat(rm);
+            // let rm = this.pointsToRightMid(br[br.length - 1]);
+            cordinates = bl.concat(br);//.concat(rm);
         }
 
         // if the start is at the right of the cell
@@ -165,8 +165,8 @@ class Cell {
             //move to the top right corner                
             let tr = this.pointsToTopRightCorner(startXY);
             //move to the right middle                                
-            let rm = this.pointsToRightMid(tr[tr.length - 1]);
-            cordinates = tr.concat(rm);
+            //let rm = this.pointsToRightMid(tr[tr.length - 1]);
+            cordinates = tr;//.concat(rm);
 
         }
         return cordinates;
@@ -180,8 +180,8 @@ class Cell {
         if (startXY.y >= this.y + this.len) {
             let bl = this.pointsToBottomLeftCorner(startXY);
             //move to the left middle
-            let lm = this.pointsToLeftMid(bl[bl.length - 1]);
-            cordinates = bl.concat(lm);
+            //let lm = this.pointsToLeftMid(bl[bl.length - 1]);
+            cordinates = bl;//.concat(lm);
 
         } // if the start is at the left of the cell
         else if (startXY.x <= this.x) {
@@ -198,8 +198,8 @@ class Cell {
             //move to the bottom left corner
             let bl = this.pointsToBottomLeftCorner(br[br.length - 1]);
             //move to the left middle
-            let lm = this.pointsToLeftMid(bl[bl.length - 1]);
-            cordinates = br.concat(bl).concat(lm);
+            //let lm = this.pointsToLeftMid(bl[bl.length - 1]);
+            cordinates = br.concat(bl);//.concat(lm);
         }
 
         // if the start is at the top of the cell
@@ -208,8 +208,8 @@ class Cell {
             //move to the top left corner
             let tl = this.pointsToTopLeftCorner(startXY);
             //move to the left middle
-            let lm = this.pointsToLeftMid(tl[tl.length - 1]);
-            cordinates = tl.concat(lm);
+            //let lm = this.pointsToLeftMid(tl[tl.length - 1]);
+            cordinates = tl;//.concat(lm);
         }
         return cordinates;
     }
@@ -228,8 +228,8 @@ class Cell {
             //move to the bottom left corner
             let bl = this.pointsToBottomLeftCorner(startXY);
             //move to the bottom mid pos
-            let bm = this.pointsToBottomMid(bl[bl.length - 1]);
-            cordinates = bl.concat(bm);
+            //let bm = this.pointsToBottomMid(bl[bl.length - 1]);
+            cordinates = bl;//.concat(bm);
 
         }
 
@@ -238,8 +238,8 @@ class Cell {
             //move to the bottom right corner                
             let br = this.pointsToBottomRightCorner(startXY);
             //move to the bottom mid pos
-            let bm = this.pointsToBottomMid(br[br.length - 1]);
-            cordinates = br.concat(bm);
+            //let bm = this.pointsToBottomMid(br[br.length - 1]);
+            cordinates = br;//.concat(bm);
         }
 
         // if the start is at the top of the cell
@@ -251,8 +251,8 @@ class Cell {
             let bl = this.pointsToBottomLeftCorner(tl[tl.length - 1]);
 
             //move to the bottom mid pos
-            let bm = this.pointsToBottomMid(bl[bl.length - 1]);
-            cordinates = tl.concat(bl).concat(bm);
+           // let bm = this.pointsToBottomMid(bl[bl.length - 1]);
+            cordinates = tl.concat(bl);//.concat(bm);
         }
         return cordinates;
     }
@@ -268,17 +268,17 @@ class Cell {
             //move to the top left corner
             let tl = this.pointsToTopLeftCorner(bl[bl.length - 1]);
             //move to the top mid pos
-            let tm = this.pointsToTopMid(tl[tl.length - 1]);
+            //let tm = this.pointsToTopMid(tl[tl.length - 1]);
 
-            cordinates = bl.concat(tl).concat(tm);
+            cordinates = bl.concat(tl);//.concat(tm);
 
         } // if the start is at the left of the cell
         else if (startXY.x <= this.x) {
             //move to the top left corner           
             let tl = this.pointsToTopLeftCorner(startXY);
             //move to the top mid pos         
-            let tm = this.pointsToTopMid(tl[tl.length - 1]);
-            cordinates = tl.concat(tm);
+            //let tm = this.pointsToTopMid(tl[tl.length - 1]);
+            cordinates = tl;//.concat(tm);
 
         }
 
@@ -287,8 +287,8 @@ class Cell {
             //move to the top right corner
             let tr = this.pointsToTopRightCorner(startXY);
             //move to the top mid pos
-            let tm = this.pointsToTopMid(tr[tr.length - 1]);
-            cordinates = tl.concat(tm);
+            //let tm = this.pointsToTopMid(tr[tr.length - 1]);
+            cordinates = tl;//.concat(tm);
         }
 
         // if the start is at the top of the cell
@@ -342,8 +342,8 @@ class Cell {
         return rm;
     }
     pointsToLeftMid(startXY, bl) {
-        ex = this.x;
-        ey = this.midY;
+        let ex = this.x;
+        let ey = this.midY;
         let lm = this.getStraightPathPoints(startXY, ex, ey);
         return lm;
     }

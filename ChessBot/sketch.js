@@ -181,8 +181,9 @@ function createChessBoard(cols, distance) {
 
 
 function getCellFromXY(x, y) {
+  //ignore borders
   for (const cell of cells) {
-    if ((cell.x <= x && (cell.x + (cell.len - 1)) >= x) && (cell.y <= y && (cell.y + (cell.len - 1)) >= y)) {
+    if ((cell.x < x && (cell.x + cell.len ) > x) && (cell.y < y && (cell.y + cell.len ) > y)) {
       return cell;
     }
   }
@@ -218,7 +219,7 @@ function getPath(start, end) {
   //check if this is on a straight path?
   if (start.x != end.x && start.y != end.y) { // not in a straight path
     //we can move in a L patern. for this divide the cells into a vertical and horizontal arm
-    const vEnd = getCellFromXY(start.x, end.y);
+    const vEnd = getCellFromXY(start.x+1, end.y+1);
     let v = getCellsInPath(start, vEnd);
     let vCellsInPath = v.cells;
     vCellsInPath.pop();//remove the last cell since it would be added in hCellsInPath
