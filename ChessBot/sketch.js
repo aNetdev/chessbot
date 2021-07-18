@@ -242,8 +242,9 @@ function getPath(start, end) {
     const nextCell = index + 1 >= cells.length ? currentCell : cells[index + 1];
     let p = currentCell.getPath(startXY, nextCell);
     points = points.concat(p);
-    startXY.x = nextCell.midX;
-    startXY.y = nextCell.midY;
+    lastPoint =points[points.length-1];
+    startXY.x = lastPoint.x;
+    startXY.y = lastPoint.y;
   }
 
 
