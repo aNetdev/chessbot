@@ -69,57 +69,44 @@ class Cell {
             let ey = destinationCell.y < this.y ? this.y : this.y + this.len// if its the top y would be the same as this.y other wise it would be the bottom line of this cell
 
             //move to top mid posistion
-            let cX = startXY.x;
-            let cY = startXY.y;
-            cordinates.push({ x: cX, y: cY });
-            //move to min X  with the same Y.
-            const midX = ex;
-            let dx = ex > startXY.x ? 1 : -1;// if the start is on the right multipy by -1 so that we reduce x
-            let diffx = abs(startXY.x - midX);
-            for (let index = 1; index <= diffx; index++) {
-                cX += dx;
-                cordinates.push({ x: cX, y: cY });
-            }
-            const midY = ey;
-            let dy = ey > startXY.y ? 1 : -1;
-            let diffy = abs(startXY.y - midY);
-            for (let index = 1; index <= diffy; index++) {
-                cY += dy;
-                cordinates.push({ x: cX, y: cY });
-
-            }
-            //cordinates.push({ x: ex, y: ey });
+            cordinates = this.getMidPoints(startXY, ex, ey);
+            
 
         }
         //dcell on left destinationCell.y == this.y or  on right destinationCell.y == this.y
         else if (destinationCell.x < this.x || destinationCell.x > this.x) {
             let ex = destinationCell.x < this.x ? this.x : this.x + this.len // if its the left y would be the same as this.x other wise it would be the right line of this cell
             let ey = this.midY // if its the top y would be the same as this.y other wise it would be the bottom line of this cell
-
-            //move to top mid posistion
-            let cX = startXY.x;
-            let cY = startXY.y;
-            cordinates.push({ x: cX, y: cY });
-            //move to min X  with the same Y.
-            const midX = ex;
-            let dx = ex > startXY.x ? 1 : -1;// if the start is on the right multipy by -1 so that we reduce x
-            let diffx = abs(startXY.x - midX);
-            for (let index = 1; index <= diffx; index++) {
-                cX += dx;
-                cordinates.push({ x: cX, y: cY });
-            }
-            const midY = ey;
-            let dy = ey > startXY.y ? 1 : -1;
-            let diffy = abs(startXY.y - midY);
-            for (let index = 1; index <= diffy; index++) {
-                cY += dy;
-                cordinates.push({ x: cX, y: cY });
-            }
-            // 
+            cordinates = this.getMidPoints(startXY, ex, ey);
+            
         }
         cordinates.push({ x: destinationCell.midX, y: destinationCell.midY });
 
         return cordinates;
     }
 
+
+    getMidPoints(startXY, ex, ey) {
+        let cordinates = [];
+        let cX = startXY.x;
+        let cY = startXY.y;
+        cordinates.push({ x: cX, y: cY });
+        //move to min X  with the same Y.
+        const midX = ex;
+        let dx = ex > startXY.x ? 1 : -1; // if the start is on the right multipy by -1 so that we reduce x
+        let diffx = abs(startXY.x - midX);
+        for (let index = 1; index <= diffx; index++) {
+            cX += dx;
+            cordinates.push({ x: cX, y: cY });
+        }
+        const midY = ey;
+        let dy = ey > startXY.y ? 1 : -1;
+        let diffy = abs(startXY.y - midY);
+        for (let index = 1; index <= diffy; index++) {
+            cY += dy;
+            cordinates.push({ x: cX, y: cY });
+
+        }
+        return cordinates;
+    }
 }
