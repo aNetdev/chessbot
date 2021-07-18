@@ -1,3 +1,4 @@
+
 let width = 600;
 let height = 600;
 let cols = 8;
@@ -7,8 +8,8 @@ let halfWidth = width / 2;
 let halfheight = height / 2;
 
 
-let gotoX = 80;
-let gotoY = 80;
+let gotoX = 0;
+let gotoY = 0;
 
 let previousX;
 let previousY;
@@ -19,6 +20,8 @@ let inp;
 let cells = [];
 
 let bot;
+let path;
+let isMoving = false;
 
 function setup() {
   createCanvas(width + 200, height + 100);
@@ -29,12 +32,14 @@ function setup() {
   let arm2Len = armLen;
 
   inp = createInput(`${gotoX},${gotoY}`);
-  inp.position(width, 10)
+  inp.position(width, 10);
   inp.size(50);
   inp.input(setxy);
 
   bot = new Scara(arm1Len, arm2Len, width, height);
   createChessBoard(cols, distance);
+  gotoX = cells[0].midX;
+  gotoY = cells[0].midY;
 }
 
 function draw() {
@@ -42,6 +47,15 @@ function draw() {
   clear();
   showCellLable();
   updateCells();
+  if (path && path.length > 0) {
+    const p = path.pop();
+    gotoX = p.x;
+    gotoY = p.y;
+    isMoving = true;
+  }
+  else {
+    isMoving = false;
+  }
 
   bot.goto(gotoX, gotoY);
   bot.update();
@@ -56,23 +70,30 @@ function draw() {
     nextCell = cell;
     nextCell.color = "green";
   }
-  if (previousX != gotoX || previousY != gotoY) {
+  if ((previousX != gotoX || previousY != gotoY)) {
     var pcell = getCellFromXY(previousX, previousY);
     if (pcell) {
       pcell.occupied = false;
-      previousCell = pcell;
-      const cells = getPath(previousCell, nextCell);
+      previousCell = pcell;      
       previousCell.color = "blue";
-      const c = color(random(0, 255), random(0, 255), random(0, 255));
-      for (let index = 0; index < cells.length; index++) {
-        const cell = cells[index];
-        cell.textColor = c;
-        cell.inPath = true;
-        cell.order = index;
+
+      if (!isMoving) {
+        path = getPath(previousCell, nextCell);
+        path = path.reverse();// easy to pop
       }
+
+      //   console.log(path.dir);
+      //   const c = color(random(0, 255), random(0, 255), random(0, 255));
+      //   let cells = path.cells;
+      //   for (let index = 0; index < cells.length; index++) {
+      //     const cell = cells[index];
+      //     cell.textColor = c;
+      //     cell.inPath = true;
+      //     cell.order = index;
+      //   }
+      // }
     }
   }
-
 
   inp.value(`${gotoX},${gotoY}`);
   previousX = gotoX;
@@ -103,7 +124,7 @@ function showCellLable() {
   pop();
 }
 function mark(x, y) {
-  push()
+  push();
   stroke('yellow');
   strokeWeight(10);
   point(x, y);
@@ -112,8 +133,8 @@ function mark(x, y) {
 
 function mousePressed() {
   if (mouseX <= width && mouseY <= height) {
-    gotoX = mouseX
-    gotoY = mouseY
+    gotoX = mouseX;
+    gotoY = mouseY;
   }
 }
 
@@ -134,7 +155,7 @@ function createChessBoard(cols, distance) {
       let color = 'black';
       if (j % 2 == 0) {
         if (i % 2 == 0) {
-          color = 'white'
+          color = 'white';
         }
         else {
           color = 'black';
@@ -145,7 +166,7 @@ function createChessBoard(cols, distance) {
           color = 'black';
         }
         else {
-          color = 'white'
+          color = 'white';
         }
       }
       let c = new Cell(i * distance, j * distance, distance, color);
@@ -192,47 +213,78 @@ function getHorizontalCells(y, startX, endX, len) {
 
 
 function getPath(start, end) {
-  let cellsInPath = [];
+  let resultCells = {};
+  let points = [];
   //check if this is on a straight path?
   if (start.x != end.x && start.y != end.y) { // not in a straight path
     //we can move in a L patern. for this divide the cells into a vertical and horizontal arm
     const vEnd = getCellFromXY(start.x, end.y);
-    let vCellsInPath = getCellsInPath(start, vEnd);
+    let v = getCellsInPath(start, vEnd);
+    let vCellsInPath = v.cells;
     vCellsInPath.pop();//remove the last cell since it would be added in hCellsInPath
-    let hCellsInPath = getCellsInPath(vEnd, end);
+    let h = getCellsInPath(vEnd, end);
+    let hCellsInPath = h.cells;
     cellsInPath = vCellsInPath.concat(hCellsInPath);
+    resultCells = {
+      cells: cellsInPath,
+      dir: v.dir + '-' + h.dir
+    };
   }
   else {
-    cellsInPath = getCellsInPath(start, end);
+    resultCells = getCellsInPath(start, end);
   }
-  return cellsInPath;
+  console.log(resultCells.dir);
+
+  let startXY = { x: start.midX, y: start.midY };
+  const cells = resultCells.cells;
+  for (let index = 0; index < cells.length; index++) {
+    const currentCell = cells[index];
+    const nextCell = index + 1 >= cells.length ? currentCell : cells[index + 1];
+    let p = currentCell.getPath(startXY, nextCell);
+    points = points.concat(p);
+    startXY.x = nextCell.midX;
+    startXY.y = nextCell.midY;
+  }
+
+
+
+  return points;
 }
 
 function getCellsInPath(start, end) {
+  let dir = "";
   let cellsInPath = [];
   cellsInPath.push(start);
-  const x = start.x; // to make sure we dont move left or right
+  const x = start.x;
   if (start.y > end.y) { // move up    
     let cells = getVerticalCells(x + 1, start.y, end.y, end.len);
     cellsInPath = cellsInPath.concat(cells.reverse());
+    dir = "up";
   }
   else if (start.y < end.y) { //movedown
     let cells = getVerticalCells(x + 1, end.y, start.y, end.len);
     cellsInPath = cellsInPath.concat(cells);
+    dir = "down";
   }
 
-  const y = start.y; //to make sure we dont move up or down
+  const y = start.y;
   if (start.x < end.x) { // move right
 
     let cells = getHorizontalCells(y + 1, end.x, start.x, end.len);
     cellsInPath = cellsInPath.concat(cells);
+    dir = "right";
   }
   else if (start.x > end.x) { //move left    
     let cells = getHorizontalCells(y + 1, start.x, end.x, end.len);
     cellsInPath = cellsInPath.concat(cells.reverse());
+    dir = "left";
   }
   cellsInPath.push(end);
   console.log(cellsInPath);
-  return cellsInPath;
+  return {
+    cells: cellsInPath,
+    dir: dir
+  };
 }
+
 
