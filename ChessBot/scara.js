@@ -66,8 +66,8 @@ class Scara {
 
         textSize(12);
         stroke('black');
-        let x = width - 50
-        let y = 100
+        let x = width - 50;
+        let y = 100;
         text(`A1 - ${degrees(angles.A1)}`, x, y);
         text(`A2 - ${degrees(angles.A2)}`, x, y += 20);
         text(`A2(calc) - ${degrees(angles.A2_Calc)}`, x, y += 20);
@@ -102,7 +102,7 @@ class Scara {
 
         let d2 = this.lawOfcosines(h, this.arm1Len, this.arm2Len);// acos((sq(h) + sq(arm1Len) - sq(arm2Len)) / (2 * h * arm1Len)); 
 
-        let a2 = this.lawOfcosines(this.arm1Len, this.arm2Len, h)//acos((sq(arm1Len) + sq(arm2Len) - sq(h)) / (2 * h * arm2Len));
+        let a2 = this.lawOfcosines(this.arm1Len, this.arm2Len, h);//acos((sq(arm1Len) + sq(arm2Len) - sq(h)) / (2 * h * arm2Len));
         let a1 = d1 + d2;
         if (y < 0) {
             a2 = a2;
@@ -116,7 +116,7 @@ class Scara {
         return { A1: a1, A2: a2 };
     }
     lawOfcosines(a, b, h) {
-        let c = acos((sq(a) + sq(b) - sq(h)) / (2 * a * b))
+        let c = acos((sq(a) + sq(b) - sq(h)) / (2 * a * b));
         return c;
     }
 

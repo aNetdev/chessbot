@@ -34,11 +34,11 @@ class Cell {
         let cordinates = [];
         //we have to move though edges
         if (this.occupied) {
-            moveType = "edges"
+            moveType = "edges";
         }
         //if startXY is within the cell we can only use midstraight move
         if (startXY.x == this.midX && startXY.y == this.midY) {
-            moveType = "midstraight"
+            moveType = "midstraight";
         }
 
         switch (moveType) {
@@ -74,8 +74,8 @@ class Cell {
 
         //dcell on top or dcell on bottom
         if (destinationCell.y < this.y || destinationCell.y > this.y) {
-            let ex = this.midX // if its top or bottom x would the same mid pos
-            let ey = destinationCell.y < this.y ? this.y : this.y + this.len// if its the top y would be the same as this.y other wise it would be the bottom line of this cell
+            let ex = this.midX ;// if its top or bottom x would the same mid pos
+            let ey = destinationCell.y < this.y ? this.y : this.y + this.len;// if its the top y would be the same as this.y other wise it would be the bottom line of this cell
 
             //move to top mid posistion
             cordinates = this.getStraightPathPoints(startXY, ex, ey);
@@ -84,8 +84,8 @@ class Cell {
         }
         //dcell on left destinationCell.y == this.y or  on right destinationCell.y == this.y
         else if (destinationCell.x < this.x || destinationCell.x > this.x) {
-            let ex = destinationCell.x < this.x ? this.x : this.x + this.len // if its the left y would be the same as this.x other wise it would be the right line of this cell
-            let ey = this.midY // if its the top y would be the same as this.y other wise it would be the bottom line of this cell
+            let ex = destinationCell.x < this.x ? this.x : this.x + this.len ;// if its the left y would be the same as this.x other wise it would be the right line of this cell
+            let ey = this.midY ;// if its the top y would be the same as this.y other wise it would be the bottom line of this cell
             cordinates = this.getStraightPathPoints(startXY, ex, ey);
 
         }

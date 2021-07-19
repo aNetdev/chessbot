@@ -1,3 +1,5 @@
+import {  } from "scara";
+import { } from "cell";
 
 let width = 600;
 let height = 600;
@@ -68,14 +70,14 @@ function draw() {
   if (cell) {
     cell.occupied = true;
     nextCell = cell;
-    nextCell.color = "green";
+    //nextCell.color = "green";
   }
   if ((previousX != gotoX || previousY != gotoY)) {
     var pcell = getCellFromXY(previousX, previousY);
     if (pcell) {
       pcell.occupied = false;
       previousCell = pcell;      
-      previousCell.color = "blue";
+      //previousCell.color = "blue";
 
       if (!isMoving) {
         path = getPath(previousCell, nextCell);
