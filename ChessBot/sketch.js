@@ -1,5 +1,5 @@
-import {  } from "scara";
-import { } from "cell";
+// import { } from "scara";
+// import { } from "cell";
 
 let width = 600;
 let height = 600;
@@ -19,6 +19,7 @@ let previousY;
 let previousCell;
 let nextCell;
 let inp;
+let checkbox;
 let cells = [];
 
 let bot;
@@ -27,16 +28,19 @@ let isMoving = false;
 
 function setup() {
   createCanvas(width + 200, height + 100);
-  //createCanvas(width , height);
-  background(220);
   let armLen = sqrt(sq(halfWidth) + sq(halfheight)) / 2;
   let arm1Len = armLen;
   let arm2Len = armLen;
 
   inp = createInput(`${gotoX},${gotoY}`);
-  inp.position(width, 10);
+  inp.position(width, 30);
   inp.size(50);
   inp.input(setxy);
+
+
+  checkbox = createCheckbox('diagonal', false);
+  checkbox.position(width, 60);
+
 
   bot = new Scara(arm1Len, arm2Len, width, height);
   createChessBoard(cols, distance);
@@ -54,21 +58,22 @@ function draw() {
     gotoX = p.x;
     gotoY = p.y;
     isMoving = true;
+
   }
   else {
     isMoving = false;
   }
-
   bot.goto(gotoX, gotoY);
   bot.update();
   bot.show();
+
 
   mark(halfWidth, halfheight);//center
   mark(gotoX, gotoY);
 
   var cell = getCellFromXY(gotoX, gotoY);
   if (cell) {
-    cell.occupied = true;
+    // cell.occupied = true;
     nextCell = cell;
     //nextCell.color = "green";
   }
@@ -76,7 +81,7 @@ function draw() {
     var pcell = getCellFromXY(previousX, previousY);
     if (pcell) {
       pcell.occupied = false;
-      previousCell = pcell;      
+      previousCell = pcell;
       //previousCell.color = "blue";
 
       if (!isMoving) {
@@ -134,7 +139,8 @@ function mark(x, y) {
 }
 
 function mousePressed() {
-  if (mouseX <= width && mouseY <= height) {
+  if ((mouseX > distance && mouseX <= width - distance) &&
+    (mouseY > distance && mouseY <= height)) {
     gotoX = mouseX;
     gotoY = mouseY;
   }
@@ -185,7 +191,7 @@ function createChessBoard(cols, distance) {
 function getCellFromXY(x, y) {
   //ignore borders
   for (const cell of cells) {
-    if ((cell.x < x && (cell.x + cell.len ) > x) && (cell.y < y && (cell.y + cell.len ) > y)) {
+    if ((cell.x < x && (cell.x + cell.len) > x) && (cell.y < y && (cell.y + cell.len) > y)) {
       return cell;
     }
   }
@@ -214,14 +220,77 @@ function getHorizontalCells(y, startX, endX, len) {
   return cellsInPath;
 }
 
+function getDiagonalCells(startX, startY, endX, len, vDir = 1, hDir = 1) { //dir up =-1 down =1 right =1 left =-1
+
+  let cellsInPath = [];
+  let x = startX;
+  let y = startY;
+  let l = abs(x - endX);
+  while (l >= 0) {
+    //while (x <= endX) {
+    let c = getCellFromXY(x + 1, y + 1);
+    cellsInPath.push(c);
+    x += (len * hDir);
+    y += (len * vDir);
+    l -= len;
+  }
+  return cellsInPath;
+}
+
+function getDiagonalCellsInPath(start, end) {
+  
+  let dir = "";
+  let cellsInPath = [];
+  //cellsInPath.push(start);
+  const x = start.x;
+  let vDir, hDir;
+
+  if (start.y > end.y && start.x < end.x) { // move up right
+    vDir = -1;
+    hDir = 1;
+    dir = "up-right";
+  }
+  else if (start.y > end.y && start.x > end.x) { // move up left
+    vDir = -1;
+    hDir = -1;
+    dir = "up-left";
+  }
+  else if (start.y < end.y && start.x < end.x) { //move down right
+    vDir = 1;
+    hDir = 1;
+    dir = "down right";
+  }
+  else if (start.y < end.y && start.x > end.x) { //move down left
+    vDir = 1;
+    hDir = -1;
+    dir = "down left";
+  }
+  cellsInPath = getDiagonalCells(start.x, start.y, end.x, start.len, vDir, hDir);
+
+  //cellsInPath.push(end);
+  console.log(cellsInPath);
+  return {
+    cells: cellsInPath,
+    dir: dir
+  };
+
+}
 
 function getPath(start, end) {
   let resultCells = {};
   let points = [];
+  let isDiagonal = false;
+  //check if the cells are diagonal and we want to move diagonal
+  if (checkbox.checked() && abs(end.x - start.x) == abs(end.y - start.y)) {
+    console.log("diagonal");
+    resultCells = getDiagonalCellsInPath(start, end);
+    isDiagonal = true;
+  }
+
   //check if this is on a straight path?
-  if (start.x != end.x && start.y != end.y) { // not in a straight path
-    //we can move in a L patern. for this divide the cells into a vertical and horizontal arm
-    const vEnd = getCellFromXY(start.x+1, end.y+1);
+  else if (start.x != end.x && start.y != end.y) { // not in a straight path
+    //we can move in a L pattern. for this divide the cells into a vertical and horizontal arm
+    const vEnd = getCellFromXY(start.x + 1, end.y + 1);
     let v = getCellsInPath(start, vEnd);
     let vCellsInPath = v.cells;
     vCellsInPath.pop();//remove the last cell since it would be added in hCellsInPath
@@ -240,12 +309,13 @@ function getPath(start, end) {
 
   let startXY = { x: start.midX, y: start.midY };
   const cells = resultCells.cells;
+
   for (let index = 0; index < cells.length; index++) {
     const currentCell = cells[index];
     const nextCell = index + 1 >= cells.length ? currentCell : cells[index + 1];
-    let p = currentCell.getPath(startXY, nextCell);
+    let p = currentCell.getPath(startXY, nextCell, isDiagonal ? "diagonal" : "midstraight");
     points = points.concat(p);
-    lastPoint =points[points.length-1];
+    lastPoint = points[points.length - 1];
     startXY.x = lastPoint.x;
     startXY.y = lastPoint.y;
   }

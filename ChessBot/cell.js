@@ -31,28 +31,29 @@ class Cell {
 
     }
     getPath(startXY, destinationCell, moveType = "midstraight") { //movetypes= edges,diagonal,midstraight
-        let cordinates = [];
+        let coordinates = [];
+        let requestedType = moveType;
         //we have to move though edges
         if (this.occupied) {
             moveType = "edges";
         }
         //if startXY is within the cell we can only use midstraight move
-        if (startXY.x == this.midX && startXY.y == this.midY) {
-            moveType = "midstraight";
-        }
+        // if (startXY.x == this.midX && startXY.y == this.midY) {
+        //     moveType = "midstraight";
+        // }
 
         switch (moveType) {
             case "midstraight": {
-                cordinates = this.getMidStraightPoints(startXY, destinationCell);
+                coordinates = this.getMidStraightPoints(startXY, destinationCell);
                 break;
             }
             case "edges": {
-                cordinates = this.getEdgePoints(startXY, destinationCell);
+                coordinates = this.getEdgePoints(startXY, destinationCell);
 
                 break;
             }
             case "diagonal": {
-
+                coordinates = this.getDiagonalPoints(startXY, destinationCell);
                 break;
             }
 
@@ -60,38 +61,48 @@ class Cell {
                 break;
         }
 
+        if (requestedType == "diagonal" && moveType == "edges") {
+            // last point would be the mid of the cell so move it to the edge.
+            let startPoint = coordinates.length > 0 ? coordinates[coordinates.length - 1] : startXY;
+            let incords = this.getStraightPathPoints(startPoint, destinationCell.x, destinationCell.y);
+            coordinates = coordinates.concat(incords);
 
-        if (this === destinationCell) {//move to mid point
-            let startPoint = cordinates.length > 0 ? cordinates[cordinates.length - 1] : startXY;
-            let incords = this.getStraightPathPoints(startPoint, this.midX, this.midY);
-            cordinates = cordinates.concat(incords);
         }
 
-        return cordinates;
+        if (this === destinationCell) {//move to mid point
+
+            if (moveType != "diagonal") {
+                let startPoint = coordinates.length > 0 ? coordinates[coordinates.length - 1] : startXY;
+                let incords = this.getStraightPathPoints(startPoint, this.midX, this.midY);
+                coordinates = coordinates.concat(incords);
+            }
+        }
+
+        return coordinates;
     }
     getMidStraightPoints(startXY, destinationCell) {
-        let cordinates = [];
+        let coordinates = [];
 
         //dcell on top or dcell on bottom
         if (destinationCell.y < this.y || destinationCell.y > this.y) {
-            let ex = this.midX ;// if its top or bottom x would the same mid pos
+            let ex = this.midX;// if its top or bottom x would the same mid pos
             let ey = destinationCell.y < this.y ? this.y : this.y + this.len;// if its the top y would be the same as this.y other wise it would be the bottom line of this cell
 
             //move to top mid posistion
-            cordinates = this.getStraightPathPoints(startXY, ex, ey);
+            coordinates = this.getStraightPathPoints(startXY, ex, ey);
 
 
         }
         //dcell on left destinationCell.y == this.y or  on right destinationCell.y == this.y
         else if (destinationCell.x < this.x || destinationCell.x > this.x) {
-            let ex = destinationCell.x < this.x ? this.x : this.x + this.len ;// if its the left y would be the same as this.x other wise it would be the right line of this cell
-            let ey = this.midY ;// if its the top y would be the same as this.y other wise it would be the bottom line of this cell
-            cordinates = this.getStraightPathPoints(startXY, ex, ey);
+            let ex = destinationCell.x < this.x ? this.x : this.x + this.len;// if its the left y would be the same as this.x other wise it would be the right line of this cell
+            let ey = this.midY;// if its the top y would be the same as this.y other wise it would be the bottom line of this cell
+            coordinates = this.getStraightPathPoints(startXY, ex, ey);
 
         }
         //cordinates.push({ x: destinationCell.midX, y: destinationCell.midY });
 
-        return cordinates;
+        return coordinates;
     }
 
     getEdgePoints(startXY, destinationCell) {
@@ -128,8 +139,26 @@ class Cell {
         return cordinates;
     }
 
+    getDiagonalPoints(startXY, destinationCell) {
+        let cordinates = [];
+        let dx = this === destinationCell ? destinationCell.midX : destinationCell.x;
+        let dy = this === destinationCell ? destinationCell.midY : destinationCell.y;
+
+        let vDir = startXY.y > dy ? -1 : 1;
+        let hDir = startXY.x > dx ? -1 : 1;
+
+        let l = abs(startXY.x - dx);
+        //let l = sqrt(sq(destinationCell.x - startXY.x) + sq(destinationCell.y - startXY.y));
+        for (let index = 0; index < l; index++) {
+            cordinates.push({ x: startXY.x + (index * hDir), y: startXY.y + (index * vDir) });
+        }
+
+        return cordinates;
+
+
+    }
     edgePointsToRight(startXY) {
-        let cordinates;
+        let cordinates = [];
         // if the start is at the bottom of the cell
         if (startXY.y >= this.y + this.len) {
             //move to the bottom right corner
@@ -175,7 +204,7 @@ class Cell {
 
 
     edgePointsToLeft(startXY) {
-        let cordinates;
+        let cordinates = [];
         // if the start is at the bottom of the cell
         if (startXY.y >= this.y + this.len) {
             let bl = this.pointsToBottomLeftCorner(startXY);
@@ -216,7 +245,7 @@ class Cell {
 
 
     edgePointsToBottom(startXY) {
-        let cordinates;
+        let cordinates = [];
         // if the start is at the bottom of the cell
         if (startXY.y >= this.y + this.len) {
             //move to the bottom mid pos
@@ -251,7 +280,7 @@ class Cell {
             let bl = this.pointsToBottomLeftCorner(tl[tl.length - 1]);
 
             //move to the bottom mid pos
-           // let bm = this.pointsToBottomMid(bl[bl.length - 1]);
+            // let bm = this.pointsToBottomMid(bl[bl.length - 1]);
             cordinates = tl.concat(bl);//.concat(bm);
         }
         return cordinates;
@@ -260,7 +289,7 @@ class Cell {
 
 
     edgePointsToTop(startXY) {
-        let cordinates;
+        let cordinates = [];
         // if the start is at the bottom of the cell
         if (startXY.y >= this.y + this.len) {
             //move to the bottom left corner                
@@ -371,4 +400,5 @@ class Cell {
         }
         return cordinates;
     }
+
 }
