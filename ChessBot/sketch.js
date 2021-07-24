@@ -7,8 +7,7 @@ let cols = 8;
 let distance = width / (cols + 2); // one empty row on each side
 
 let halfWidth = width / 2;
-let halfheight = height / 2;
-
+let halfHeight = height / 2;
 
 let gotoX = 0;
 let gotoY = 0;
@@ -28,7 +27,7 @@ let isMoving = false;
 
 function setup() {
   createCanvas(width + 200, height + 100);
-  let armLen = sqrt(sq(halfWidth) + sq(halfheight)) / 2;
+  let armLen = sqrt(sq(halfWidth) + sq(halfHeight)) / 2;
   let arm1Len = armLen;
   let arm2Len = armLen;
 
@@ -37,10 +36,8 @@ function setup() {
   inp.size(50);
   inp.input(setxy);
 
-
-  checkbox = createCheckbox('diagonal', false);
+  checkbox = createCheckbox("diagonal", false);
   checkbox.position(width, 60);
-
 
   bot = new Scara(arm1Len, arm2Len, width, height);
   createChessBoard(cols, distance);
@@ -51,33 +48,33 @@ function setup() {
 function draw() {
   // noFill();
   clear();
-  showCellLable();
+  showCellLabel();
   updateCells();
   if (path && path.length > 0) {
     const p = path.pop();
     gotoX = p.x;
     gotoY = p.y;
     isMoving = true;
-
-  }
-  else {
+  } else {
     isMoving = false;
   }
   bot.goto(gotoX, gotoY);
   bot.update();
   bot.show();
 
-
-  mark(halfWidth, halfheight);//center
+  mark(halfWidth, halfHeight); //center
   mark(gotoX, gotoY);
-
+  push();
+  fill("cyan");
+  text(`${gotoX},${gotoY}`, gotoX, gotoY);
+  pop();
   var cell = getCellFromXY(gotoX, gotoY);
   if (cell) {
     // cell.occupied = true;
     nextCell = cell;
     //nextCell.color = "green";
   }
-  if ((previousX != gotoX || previousY != gotoY)) {
+  if (previousX != gotoX || previousY != gotoY) {
     var pcell = getCellFromXY(previousX, previousY);
     if (pcell) {
       pcell.occupied = false;
@@ -86,7 +83,7 @@ function draw() {
 
       if (!isMoving) {
         path = getPath(previousCell, nextCell);
-        path = path.reverse();// easy to pop
+        path = path.reverse(); // easy to pop
       }
 
       //   console.log(path.dir);
@@ -107,17 +104,15 @@ function draw() {
   previousY = gotoY;
 }
 
-
 function updateCells() {
   for (const cell of cells) {
     cell.update();
     cell.show();
   }
-
 }
-function showCellLable() {
+function showCellLabel() {
   push();
-  let c = 'a';
+  let c = "a";
   for (let i = 1; i <= cols; i++) {
     //rows
     let midX = i * distance + distance / 2;
@@ -132,49 +127,46 @@ function showCellLable() {
 }
 function mark(x, y) {
   push();
-  stroke('yellow');
+  stroke("yellow");
   strokeWeight(10);
   point(x, y);
   pop();
 }
 
 function mousePressed() {
-  if ((mouseX > distance && mouseX <= width - distance) &&
-    (mouseY > distance && mouseY <= height)) {
+  if (
+    mouseX > distance &&
+    mouseX <= width - distance &&
+    mouseY > distance &&
+    mouseY <= height
+  ) {
     gotoX = mouseX;
     gotoY = mouseY;
   }
 }
 
 function setxy() {
-
   let s = this.value();
-  let v = split(s, ',');
+  let v = split(s, ",");
   gotoX = float(v[0]);
   gotoY = float(v[1]);
 }
 
-
 function createChessBoard(cols, distance) {
-
-
   for (let i = 1; i <= cols; i++) {
     for (let j = 1; j <= cols; j++) {
-      let color = 'black';
+      let color = "black";
       if (j % 2 == 0) {
         if (i % 2 == 0) {
-          color = 'white';
+          color = "white";
+        } else {
+          color = "black";
         }
-        else {
-          color = 'black';
-        }
-      }
-      else {
+      } else {
         if (i % 2 == 0) {
-          color = 'black';
-        }
-        else {
-          color = 'white';
+          color = "black";
+        } else {
+          color = "white";
         }
       }
       let c = new Cell(i * distance, j * distance, distance, color);
@@ -184,18 +176,20 @@ function createChessBoard(cols, distance) {
       //rect(i * distance, j * distance, distance, distance);
     }
   }
-
 }
-
 
 function getCellFromXY(x, y) {
   //ignore borders
   for (const cell of cells) {
-    if ((cell.x < x && (cell.x + cell.len) > x) && (cell.y < y && (cell.y + cell.len) > y)) {
+    if (
+      cell.x < x &&
+      cell.x + cell.len > x &&
+      cell.y < y &&
+      cell.y + cell.len > y
+    ) {
       return cell;
     }
   }
-
 }
 function getVerticalCells(x, startY, endY, len) {
   let cellsInPath = [];
@@ -220,7 +214,8 @@ function getHorizontalCells(y, startX, endX, len) {
   return cellsInPath;
 }
 
-function getDiagonalCells(startX, startY, endX, len, vDir = 1, hDir = 1) { //dir up =-1 down =1 right =1 left =-1
+function getDiagonalCells(startX, startY, endX, len, vDir = 1, hDir = 1) {
+  //dir up =-1 down =1 right =1 left =-1
 
   let cellsInPath = [];
   let x = startX;
@@ -230,50 +225,56 @@ function getDiagonalCells(startX, startY, endX, len, vDir = 1, hDir = 1) { //dir
     //while (x <= endX) {
     let c = getCellFromXY(x + 1, y + 1);
     cellsInPath.push(c);
-    x += (len * hDir);
-    y += (len * vDir);
+    x += len * hDir;
+    y += len * vDir;
     l -= len;
   }
   return cellsInPath;
 }
 
 function getDiagonalCellsInPath(start, end) {
-  
   let dir = "";
   let cellsInPath = [];
   //cellsInPath.push(start);
   const x = start.x;
   let vDir, hDir;
 
-  if (start.y > end.y && start.x < end.x) { // move up right
+  if (start.y > end.y && start.x < end.x) {
+    // move up right
     vDir = -1;
     hDir = 1;
     dir = "up-right";
-  }
-  else if (start.y > end.y && start.x > end.x) { // move up left
+  } else if (start.y > end.y && start.x > end.x) {
+    // move up left
     vDir = -1;
     hDir = -1;
     dir = "up-left";
-  }
-  else if (start.y < end.y && start.x < end.x) { //move down right
+  } else if (start.y < end.y && start.x < end.x) {
+    //move down right
     vDir = 1;
     hDir = 1;
     dir = "down right";
-  }
-  else if (start.y < end.y && start.x > end.x) { //move down left
+  } else if (start.y < end.y && start.x > end.x) {
+    //move down left
     vDir = 1;
     hDir = -1;
     dir = "down left";
   }
-  cellsInPath = getDiagonalCells(start.x, start.y, end.x, start.len, vDir, hDir);
+  cellsInPath = getDiagonalCells(
+    start.x,
+    start.y,
+    end.x,
+    start.len,
+    vDir,
+    hDir
+  );
 
   //cellsInPath.push(end);
   console.log(cellsInPath);
   return {
     cells: cellsInPath,
-    dir: dir
+    dir: dir,
   };
-
 }
 
 function getPath(start, end) {
@@ -288,21 +289,21 @@ function getPath(start, end) {
   }
 
   //check if this is on a straight path?
-  else if (start.x != end.x && start.y != end.y) { // not in a straight path
+  else if (start.x != end.x && start.y != end.y) {
+    // not in a straight path
     //we can move in a L pattern. for this divide the cells into a vertical and horizontal arm
     const vEnd = getCellFromXY(start.x + 1, end.y + 1);
     let v = getCellsInPath(start, vEnd);
     let vCellsInPath = v.cells;
-    vCellsInPath.pop();//remove the last cell since it would be added in hCellsInPath
+    vCellsInPath.pop(); //remove the last cell since it would be added in hCellsInPath
     let h = getCellsInPath(vEnd, end);
     let hCellsInPath = h.cells;
     cellsInPath = vCellsInPath.concat(hCellsInPath);
     resultCells = {
       cells: cellsInPath,
-      dir: v.dir + '-' + h.dir
+      dir: v.dir + "-" + h.dir,
     };
-  }
-  else {
+  } else {
     resultCells = getCellsInPath(start, end);
   }
   console.log(resultCells.dir);
@@ -313,14 +314,16 @@ function getPath(start, end) {
   for (let index = 0; index < cells.length; index++) {
     const currentCell = cells[index];
     const nextCell = index + 1 >= cells.length ? currentCell : cells[index + 1];
-    let p = currentCell.getPath(startXY, nextCell, isDiagonal ? "diagonal" : "midstraight");
+    let p = currentCell.getPath(
+      startXY,
+      nextCell,
+      isDiagonal ? "diagonal" : "midStraight"
+    );
     points = points.concat(p);
     lastPoint = points[points.length - 1];
     startXY.x = lastPoint.x;
     startXY.y = lastPoint.y;
   }
-
-
 
   return points;
 }
@@ -330,25 +333,27 @@ function getCellsInPath(start, end) {
   let cellsInPath = [];
   cellsInPath.push(start);
   const x = start.x;
-  if (start.y > end.y) { // move up    
+  if (start.y > end.y) {
+    // move up
     let cells = getVerticalCells(x + 1, start.y, end.y, end.len);
     cellsInPath = cellsInPath.concat(cells.reverse());
     dir = "up";
-  }
-  else if (start.y < end.y) { //movedown
+  } else if (start.y < end.y) {
+    //movedown
     let cells = getVerticalCells(x + 1, end.y, start.y, end.len);
     cellsInPath = cellsInPath.concat(cells);
     dir = "down";
   }
 
   const y = start.y;
-  if (start.x < end.x) { // move right
+  if (start.x < end.x) {
+    // move right
 
     let cells = getHorizontalCells(y + 1, end.x, start.x, end.len);
     cellsInPath = cellsInPath.concat(cells);
     dir = "right";
-  }
-  else if (start.x > end.x) { //move left    
+  } else if (start.x > end.x) {
+    //move left
     let cells = getHorizontalCells(y + 1, start.x, end.x, end.len);
     cellsInPath = cellsInPath.concat(cells.reverse());
     dir = "left";
@@ -357,8 +362,6 @@ function getCellsInPath(start, end) {
   console.log(cellsInPath);
   return {
     cells: cellsInPath,
-    dir: dir
+    dir: dir,
   };
 }
-
-

@@ -5,11 +5,11 @@ class Scara {
         this.arm2Len = arm2Len;
         this.width = width;
         this.height = height;
-        this.orginV = createVector(0,0);
+        this.originV = createVector(0,0);
     }
 
     goto(x, y) {
-        this.gotoX = x - (this.width / 2); // convert the 0,0 left corner axis to mid point cordinates
+        this.gotoX = x - (this.width / 2); // convert the 0,0 left corner axis to mid point coordinates
         this.gotoY = -1 * (y - (this.height / 2));
     }
     update() {
@@ -21,8 +21,8 @@ class Scara {
         this.arm1V.setHeading(this.angles.A1);
 
         let tempV = createVector(this.gotoX, this.gotoY);
-        // insted of calculating the angle between arm2 and x axis, 
-        //draw the arm and then check to see if the caclulated angle is same as acutal
+        // instead of calculating the angle between arm2 and x axis, 
+        //draw the arm and then check to see if the calculated angle is same as acutal
         this.arm2V = p5.Vector.sub(tempV, this.arm1V);
         let x = this.arm2V.angleBetween(this.arm1V);
         this.angles.A2_Calc = PI - x;
@@ -32,12 +32,12 @@ class Scara {
     show() {
 
         push();
-        translate((this.width / 2), (this.height / 2));//move the cordinate to center
+        translate((this.width / 2), (this.height / 2));//move the coordinates to center
         scale(1, -1);
         stroke('black');
         strokeWeight(2);
-        this.drawArrow(this.orginV, this.arm1V, "blue");
-        let arm1Tip = this.getCordinates(this.arm1Len, this.angles.A1);
+        this.drawArrow(this.originV, this.arm1V, "blue");
+        let arm1Tip = this.getCoordinates(this.arm1Len, this.angles.A1);
         circle(arm1Tip.X, arm1Tip.Y, 20);//joint circle
 
         this.drawArrow(this.arm1V, this.arm2V, "green");
@@ -79,13 +79,13 @@ class Scara {
 
 
 
-    getCordinates(l, angle, orginX = 0, orginY = 0) {
+    getCoordinates(l, angle, originX = 0, originY = 0) {
         // console.log(`l ${l}`);
         //console.log(`angle ${angle}`);
 
         //angle from y axis
-        let x = orginX + cos(angle) * l;
-        let y = orginY + sin(angle) * l;
+        let x = originX + cos(angle) * l;
+        let y = originY + sin(angle) * l;
 
         return { X: x, Y: y };
     }
@@ -100,9 +100,9 @@ class Scara {
         let h = sqrt(sq(x) + sq(y));
         let d1 = atan(y / x);
 
-        let d2 = this.lawOfcosines(h, this.arm1Len, this.arm2Len);// acos((sq(h) + sq(arm1Len) - sq(arm2Len)) / (2 * h * arm1Len)); 
+        let d2 = this.lawOfCosines(h, this.arm1Len, this.arm2Len);// acos((sq(h) + sq(arm1Len) - sq(arm2Len)) / (2 * h * arm1Len)); 
 
-        let a2 = this.lawOfcosines(this.arm1Len, this.arm2Len, h);//acos((sq(arm1Len) + sq(arm2Len) - sq(h)) / (2 * h * arm2Len));
+        let a2 = this.lawOfCosines(this.arm1Len, this.arm2Len, h);//acos((sq(arm1Len) + sq(arm2Len) - sq(h)) / (2 * h * arm2Len));
         let a1 = d1 + d2;
         if (y < 0) {
             a2 = a2;
@@ -115,7 +115,7 @@ class Scara {
 
         return { A1: a1, A2: a2 };
     }
-    lawOfcosines(a, b, h) {
+    lawOfCosines(a, b, h) {
         let c = acos((sq(a) + sq(b) - sq(h)) / (2 * a * b));
         return c;
     }
