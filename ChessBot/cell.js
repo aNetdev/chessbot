@@ -70,7 +70,8 @@ class Cell {
     }
 
     if (this === destinationCell) {
-      //move to mid point
+      //move to mid point Acha is a baby now
+      //hi Acha! its Parthiv
 
       if (moveType != "diagonal") {
         let startPoint =
